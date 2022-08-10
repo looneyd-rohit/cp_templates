@@ -1,14 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-const int M = 1e9+7;
-const int s = 1e5+1;
-#define		INF 		   1e9+69
-#define 	ull 		   unsigned long long
-#define     ll             long long
-#define     lb             lower_bound
-#define     nsync          ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
-#define     t()            int t; cin>>t; while(t--)
-
 class STRSQLazy{
 private:
 	
@@ -102,45 +91,3 @@ public:
 		segArr[index] = segArr[2*index+1] + segArr[2*index+2];
 	}
 };
-
-int32_t main(){
-    nsync;
-    #ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    freopen("error.txt", "w", stderr);
-    #endif
-    // t(){
-    	
-    	
-    // }
-    int n;
-    cin>>n;
-    vector<int> arr(n, 0);
-    for(int i=0; i<n; i++) cin>>arr[i];
-    // build the segment tree
-    STRSQLazy seg(n);
-	seg.build(0, 0, n-1, arr);
-	// for(auto& e:seg.segArr) cout<<e<<" ";cout<<endl;
-    int q;
-	cin>>q;
-	while(q--){
-		int type;
-		cin>>type;
-		if(type==1){
-			// type 1 --> range query
-			int l, h;
-			cin>>l>>h;
-			cout<<seg.rangeQuery(0, 0, n-1, l, h)<<endl;
-		}
-		else if(type==2){
-			// type 2 --> range update
-			int l, h, val;
-			cin>>l>>h>>val;
-			seg.rangeUpdate(0, 0, n-1, l, h, val);
-		}
-	}
-    
-    
-    return 0;
-}
