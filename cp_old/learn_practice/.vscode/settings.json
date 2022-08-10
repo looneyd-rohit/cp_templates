@@ -1,0 +1,8 @@
+{
+    "python.pythonPath": "C:\\Users\\ROHIT\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "files.associations": {
+        "cmath": "cpp",
+        "ostream": "cpp",
+        "iostream": "cpp"
+    }
+}

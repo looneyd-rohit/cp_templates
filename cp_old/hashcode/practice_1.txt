@@ -1,0 +1,22 @@
+like:
+cheese - 1
+pepper - 1
+basil - 1
+mush - 1
+tom - 1
+
+dislike:
+pine - 1
+basil - 1
+
+
+cheese + pepper + basil + mush + tom = 5
+
+
+//
+cheese - 1>0 -- Y
+pepper - 1>0 -- Y
+basil - 1:1 -- _
+mush - 1>0 -- Y
+tom - 1>0 -- Y
+pine - 0<1 -- N

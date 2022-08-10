@@ -1,0 +1,1 @@
+{"name":"Local: temp_4","url":"c:\\Users\\ROHIT\\Desktop\\practice_or_test\\temp_4.cpp","tests":[{"id":1625486757449,"input":"6\n1 3 0 5 5 8\n1 1 6 2 4 1","output":"4"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"c:\\Users\\ROHIT\\Desktop\\practice_or_test\\temp_4.cpp","group":"local","local":true}
