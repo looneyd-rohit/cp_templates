@@ -1,0 +1,2 @@
+Distance b/w 6 and 13 = 6
+Distance b/w 7 and 15 = 6
