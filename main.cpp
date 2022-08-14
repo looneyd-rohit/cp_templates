@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int M = 1e9 + 7;
+// const int M = 1e9 + 7;
 const int s = 1e5 + 1;
 #define int long long
 #define INF LONG_MAX
@@ -15,90 +15,41 @@ const int s = 1e5 + 1;
 	int t;    \
 	cin >> t; \
 	while (t--)
-
-// BINARY LIFTING TECHNIQUE OF FINDING THE LCA:
-// T.C. - O(LOG N) --> for queries
-// T.C. - O(N * LOG N) --> for building sparse table
-// S.C. - O(N * LOG N) --> for sparse table
-
-unordered_map<int, list<int>> adj;
-vector<vector<int>> LCA;
-vector<int> level;
-int maxN, N;
-
-void dfs(int node, int parent = -1, int l = 0)
-{
-	level[node] = l;
-	LCA[node][0] = parent;
-	for (auto& next:adj[node])
-	{
-		if (next != parent)
-		{
-			dfs(next, node, l + 1);
-		}
-	}
+ 
+vector<vector<char>> matrix;
+vector<vector<int>> mintimes;
+vector<vector<int>> playertimes;
+vector<pair<int, int>> moves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // 0, 1, 2, 3
+int start_x = -1, start_y = -1;
+int N = -1, M = -1;
+ 
+bool isValid(int x, int y, int timer){
+	if(x<0 || x>=N || y<0 || y>=M) return false;
+	if(matrix[x][y]=='#') return false;
+	if(mintimes[x][y] <= timer) return false;
+	return true;
 }
-
-void print(){
-	// printing the LCA list
-	for(int i=1; i<=N; i++){
-		for(int j=0; j<maxN; j++){
-			cout<<LCA[i][j]<<" ";
-		}
-		cout<<endl;
-	}
+ 
+bool isValidEscape(int x, int y, int timer){
+	if(isValid(x, y, timer) and (x==0 or x==N-1 or y==0 or y==M-1))
+		return true;
+	return false;
 }
-
-void buildLCA()
-{
-	dfs(1);
-	for (int j = 1; j <= maxN; j++)
-	{
-		for (int i = 1; i <= N; i++)
-		{
-			// building the LCA array columnwise
-			int par = LCA[i][j - 1];
-			if (par != -1)
-			{
-				LCA[i][j] = LCA[par][j - 1];
-			}
-		}
+ 
+int evaluate(pair<int, int>& p){
+	for(int i=0; i<moves.size(); i++){
+		if(p == moves[i]) return i;
 	}
+	return 69;
 }
-
-int getLCA(int a, int b)
-{
-	if (level[a] < level[b])
-		swap(a, b);
-
-	// level[a] > level[b]
-
-	int d = level[a] - level[b];
-	while (d > 0)
-	{
-		int jump = log2(d);
-		a = LCA[a][jump];
-		d = d - (1 << jump);
-	}
-
-	if (a == b)
-		return a;
-	
-	for (int i = maxN; i >= 0; i--)
-	{
-		if (LCA[a][i] != -1 and LCA[a][i] != LCA[b][i])
-			a = LCA[a][i], b = LCA[b][i];
-	}
-
-	return LCA[a][0];
+ 
+char evaluate2(int i){
+	if(i==0) return 'D';
+	if(i==1) return 'U';
+	if(i==2) return 'R';
+	if(i==3) return 'L';
+	return 'x';
 }
-
-int getDist(int a, int b)
-{
-	int lca = getLCA(a, b);
-	return ((level[a] + level[b]) - 2 * (level[lca]));
-}
-
 int32_t main()
 {
 	nsync;
@@ -108,53 +59,118 @@ int32_t main()
 	freopen("error.txt", "w", stderr);
 #endif
 	// t(){
-
+ 
 	// }
-
+ 
 	int n, m;
-	// cin >> n >> m;
-
-	// for (int i = 0; i < m; i++)
-	// {
-	// 	int u, v;
-	// 	cin >> u >> v;
-	// 	adj[u].push_back(v);
-	// 	adj[v].push_back(u);
+	cin>>n>>m;
+	matrix.resize(n, vector<char>(m, '_'));
+	mintimes.resize(n, vector<int>(m, INT_MAX));
+	vector<pair<int, int>> monsters;
+	for(int i=0; i<n; i++){
+		for(int j=0; j<m; j++){
+			cin>>matrix[i][j];
+			if(matrix[i][j]=='A'){
+				start_x = i, start_y = j;
+			}else if(matrix[i][j]=='M'){
+				monsters.push_back({i, j});
+			}
+		}
+	}
+	if(start_x==0 or start_x==n-1 or start_y==0 or start_y==m-1){
+		cout<<"YES"<<endl;
+		return 0;
+	}
+	N = n, M = m;
+	// multisource bfs type problem
+	// we have to get the min time at which a block is
+	// accessed by the monster, and then call bfs for
+	// A, if A can reach that block before the min time
+	// A can find his way forward
+	queue<pair<pair<int, int>, int>> q;
+	// {x, y, mintime/level}
+	for(auto& p:monsters) q.push({p, 0});
+	while(!q.empty()){
+		auto el = q.front(); q.pop();
+		int x = el.first.first, y = el.first.second, timer = el.second;
+		// cout<<"time = "<<timer<<endl;
+		if(timer>mintimes[x][y]) continue;
+		mintimes[x][y] = timer;
+		for(auto& el:moves){
+			int new_x = x + el.first, new_y = y + el.second;
+			// cout<<"new x = "<<new_x<<" new_y = "<<new_y<<endl;
+			if(isValid(new_x, new_y, timer+1)){
+				mintimes[new_x][new_y] = timer+1;
+				q.push({{new_x, new_y}, timer+1});
+			}
+		}
+	}
+	
+	
+	// now, we call bfs for A.
+	playertimes.resize(n, vector<int>(n, INT_MAX));
+	vector<vector<int>> path(n, vector<int>(m, INT_MAX));
+	q.push({{start_x, start_y}, 0});
+	path[start_x][start_y] = 0;
+	bool flag = false;
+	string str_path = "";
+	// cout<<"q start"<<endl;
+	int end_x = -1, end_y = -1;
+	while(!q.empty()){
+		auto e = q.front(); q.pop();
+		int x = e.first.first, y = e.first.second, timer = e.second;
+		
+		// timer exceeds the min time of M --> not possible
+		if(timer >= mintimes[x][y] || timer >=playertimes[x][y]) continue;
+		
+		playertimes[x][y] = min(playertimes[x][y], timer);
+		// else visit neighbours
+		for(auto& el:moves){
+			int new_x = x + el.first, new_y = y + el.second;
+			// if (x, y) is a boundary escape point
+			if(isValidEscape(new_x, new_y, timer+1)){
+				// cout<<"hello"<<endl;
+				flag = true;
+				end_x = new_x, end_y = new_y;
+				int val = evaluate(el);
+				path[new_x][new_y] = val;
+				break;
+			}
+			if(isValid(new_x, new_y, timer+1)){
+				int val = evaluate(el);
+				path[new_x][new_y] = val;
+				q.push({{new_x, new_y}, timer+1});
+			}
+		}
+		if(flag) break;
+	}
+	
+	// cout<<"q end"<<endl;
+	
+	// for(int i=0; i<n; i++){
+	// 	for(int j=0; j<m; j++){
+	// 		if(path[i][j]==INT_MAX) cout<<'i'<<" ";
+	// 		else cout<<path[i][j]<<" ";
+	// 	}cout<<endl;
 	// }
 	
-	n = 16, m = 15;
-	adj[1].push_back(2);
-	adj[1].push_back(10);
-	adj[2].push_back(3);
-	adj[2].push_back(7);
-	adj[3].push_back(4);
-	adj[3].push_back(5);
-	adj[5].push_back(6);
-	adj[7].push_back(8);
-	adj[8].push_back(9);
-	adj[10].push_back(11);
-	adj[11].push_back(12);
-	adj[10].push_back(13);
-	adj[13].push_back(14);
-	adj[14].push_back(15);
-	adj[15].push_back(16);
-
-	maxN = log2(n) + 1;
-	N = n;
-
-	LCA.resize(n + 1, vector<int>(maxN+1, -1));
-	level.resize(n + 1, 0);
-
-	buildLCA();
-	
-	int q=0;
-	cin >> q;
-	while (q--)
-	{
-		int u, v;
-		cin >> u >> v;
-		cout << "Distance b/w " << u << " and " << v << " = " << getDist(u, v) << endl;
+	if(flag){
+		cout<<"YES"<<endl;
+		// cout<<"end = "<<"[ "<<end_x<<", "<<end_y<<" ]"<<endl;
+		while(start_x!=end_x or start_y!=end_y){
+			char dir = evaluate2(path[end_x][end_y]);
+			str_path.push_back(dir);
+			if(dir=='D') end_x--;
+			else if(dir=='U') end_x++;
+			else if(dir=='R') end_y--;
+			else if(dir=='L') end_y++;
+		}
+		cout<<str_path.length()<<endl;
+		reverse(str_path.begin(), str_path.end());
+		cout<<str_path<<endl;
+	}else{
+		cout<<"NO"<<endl;
 	}
-
+	
 	return 0;
 }
