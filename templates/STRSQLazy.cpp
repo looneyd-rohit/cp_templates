@@ -54,6 +54,8 @@ public:
 		return (left+right);
 	}
 	
+	
+	
 	void rangeUpdate(int index, int low, int high, int l, int h, int val){
 		// if previous updates are pending just complete them
 		if(lazy[index]!=0){
