@@ -48,7 +48,7 @@ vector<int> findAllOccurencesKMP(string &text, string &pattern,
       if (j == m) {
         // fully matched
         result.push_back(i - j);
-        j = 0;
+        j = lps[j - 1];
       }
     } else {
       // point j to lps[j-1]
